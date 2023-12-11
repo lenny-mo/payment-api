@@ -43,6 +43,7 @@ func NewPaymentAPIEndpoints() []*api.Endpoint {
 
 type PaymentAPIService interface {
 	MakePayment(ctx context.Context, in *MakePaymentRequest, opts ...client.CallOption) (*MakePaymentResponse, error)
+	GetPayment(ctx context.Context, in *GetPaymentRequest, opts ...client.CallOption) (*GetPaymentResponse, error)
 }
 
 type paymentAPIService struct {
@@ -67,15 +68,27 @@ func (c *paymentAPIService) MakePayment(ctx context.Context, in *MakePaymentRequ
 	return out, nil
 }
 
+func (c *paymentAPIService) GetPayment(ctx context.Context, in *GetPaymentRequest, opts ...client.CallOption) (*GetPaymentResponse, error) {
+	req := c.c.NewRequest(c.name, "PaymentAPI.GetPayment", in)
+	out := new(GetPaymentResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for PaymentAPI service
 
 type PaymentAPIHandler interface {
 	MakePayment(context.Context, *MakePaymentRequest, *MakePaymentResponse) error
+	GetPayment(context.Context, *GetPaymentRequest, *GetPaymentResponse) error
 }
 
 func RegisterPaymentAPIHandler(s server.Server, hdlr PaymentAPIHandler, opts ...server.HandlerOption) error {
 	type paymentAPI interface {
 		MakePayment(ctx context.Context, in *MakePaymentRequest, out *MakePaymentResponse) error
+		GetPayment(ctx context.Context, in *GetPaymentRequest, out *GetPaymentResponse) error
 	}
 	type PaymentAPI struct {
 		paymentAPI
@@ -90,4 +103,8 @@ type paymentAPIHandler struct {
 
 func (h *paymentAPIHandler) MakePayment(ctx context.Context, in *MakePaymentRequest, out *MakePaymentResponse) error {
 	return h.PaymentAPIHandler.MakePayment(ctx, in, out)
+}
+
+func (h *paymentAPIHandler) GetPayment(ctx context.Context, in *GetPaymentRequest, out *GetPaymentResponse) error {
+	return h.PaymentAPIHandler.GetPayment(ctx, in, out)
 }

@@ -11,11 +11,10 @@ import (
 )
 
 // 实现下面的接口
-// Server API for PaymentAPI service
-//
-//	type PaymentAPIHandler interface {
-//		MakePayment(context.Context, *MakePaymentRequest, *MakePaymentResponse) error
-//	}
+// type PaymentAPIHandler interface {
+// 	MakePayment(context.Context, *MakePaymentRequest, *MakePaymentResponse) error
+// 	GetPayment(context.Context, *GetPaymentRequest, *GetPaymentResponse) error
+// }
 
 type PaymentAPI struct {
 	payment.PaymentService
@@ -47,6 +46,21 @@ func (p *PaymentAPI) MakePayment(ctx context.Context, req *paymentapi.MakePaymen
 
 	res.Msg = "success"
 	res.Body = "paymentId:" + payres.PaymentID
+
+	return nil
+}
+
+func (p *PaymentAPI) GetPayment(ctx context.Context, req *paymentapi.GetPaymentRequest, res *paymentapi.GetPaymentResponse) error {
+	data, err := p.PaymentService.GetPaymentStatus(context.TODO(), &payment.GetPaymentStatusRequest{
+		PaymentId: "12",
+	})
+
+	if err != nil {
+		fmt.Println("err during get payment")
+		return err
+	}
+
+	res.PaymentInfo = data.PaymentData.PaymentMethod + data.PaymentData.TransactionId
 
 	return nil
 }

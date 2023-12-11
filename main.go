@@ -15,7 +15,7 @@ func main() {
 	// 注册中心
 	consulRegistry := consul.NewRegistry(func(options *registry.Options) {
 		options.Addrs = []string{
-			"dev-consul:8500",
+			"127.0.0.1:8500",
 		}
 	})
 
@@ -23,7 +23,7 @@ func main() {
 	service := micro.NewService(
 		micro.Name("go.micro.api.payment-api"),
 		micro.Version("latest"),
-		micro.Address(":8091"),
+		micro.Address("127.0.0.1:8091"),
 		micro.Registry(consulRegistry),
 	)
 
@@ -38,7 +38,9 @@ func main() {
 	}
 
 	// 启动服务
-	if err := service.Run(); err != nil {
-		fmt.Println(err)
-	}
+	go func() {
+		if err := service.Run(); err != nil {
+			fmt.Println(err)
+		}
+	}()
 }

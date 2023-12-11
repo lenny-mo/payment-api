@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package go.micro.api.paymentapi;
+
+option go_package = "./paymentapi";
+
+service PaymentAPI {
+	rpc MakePayment(MakePaymentRequest) returns (MakePaymentResponse); 
+}
+
+message Pair {
+	string key = 1;
+	repeated string values = 2;
+}
+
+message MakePaymentRequest {
+	string method = 1;
+	string path = 2;
+	map<string, Pair> header = 3;
+	map<string, Pair> get = 4;
+	map<string, Pair> post = 5;
+	string body = 6;
+	string url = 7;	
+}
+
+message MakePaymentResponse {
+	string code = 1;
+	string msg = 2;
+	map<string, Pair> header = 3;
+	string body = 4;
+}

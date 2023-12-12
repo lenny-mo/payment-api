@@ -2,57 +2,51 @@ package handler
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"strconv"
 
 	"github.com/lenny-mo/payment-api/proto/paymentapi"
 	"github.com/lenny-mo/payment/proto/payment"
 )
 
 // 实现下面的接口
-// type PaymentAPIHandler interface {
-// 	MakePayment(context.Context, *MakePaymentRequest, *MakePaymentResponse) error
-// 	GetPayment(context.Context, *GetPaymentRequest, *GetPaymentResponse) error
-// }
-
+// server api
+//
+//	type PaymentAPIHandler interface {
+//		MakePayment(context.Context, *MakePaymentRequest, *MakePaymentResponse) error
+//		GetPayment(context.Context, *GetPaymentRequest, *GetPaymentResponse) error
+//		UpdatePayment(context.Context, *UpdatePaymentRequest, *UpdatePaymentResponse) error
+//	}
 type PaymentAPI struct {
 	payment.PaymentService
 }
 
 func (p *PaymentAPI) MakePayment(ctx context.Context, req *paymentapi.MakePaymentRequest, res *paymentapi.MakePaymentResponse) error {
-	if _, ok := req.Get["order_id"]; !ok {
-		// todo: 添加zap日志
-		fmt.Println("order_id is not exist")
-		return errors.New("order_id is not exist")
-	}
-	orderIdstr := req.Get["order_id"].Values[0]
-	orderId, err := strconv.ParseInt(orderIdstr, 10, 64)
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
 
+	// 调用领域层的方法
 	payreq := payment.MakePaymentRequest{
-		OrderId: orderId,
+		OrderId: req.OrderId,
 	}
 
-	payres, err := p.PaymentService.MakePayment(context.TODO(), &payreq)
-	if err != nil {
-		fmt.Println(err)
-		res.Msg = err.Error()
-		return err
-	}
+	// 目前只是处理paypal订单
+	switch req.Method {
+	case "paypal":
+		payres, err := p.PaymentService.MakePayment(context.TODO(), &payreq)
+		if err != nil {
+			fmt.Println(err)
+			res.Msg = err.Error()
+			return err
+		}
 
-	res.Msg = "success"
-	res.Body = "paymentId:" + payres.PaymentID
+		res.Msg = "success"
+		res.Msg += "paymentId:" + payres.PaymentID
+	}
 
 	return nil
 }
 
 func (p *PaymentAPI) GetPayment(ctx context.Context, req *paymentapi.GetPaymentRequest, res *paymentapi.GetPaymentResponse) error {
 	data, err := p.PaymentService.GetPaymentStatus(context.TODO(), &payment.GetPaymentStatusRequest{
-		PaymentId: "12",
+		PaymentId: req.PaymentId,
 	})
 
 	if err != nil {
@@ -60,7 +54,27 @@ func (p *PaymentAPI) GetPayment(ctx context.Context, req *paymentapi.GetPaymentR
 		return err
 	}
 
-	res.PaymentInfo = data.PaymentData.PaymentMethod + data.PaymentData.TransactionId
+	res.PaymentInfo = "payment_method: " + data.PaymentData.PaymentMethod + "," +
+		"payment_id: " + data.PaymentData.TransactionId
+
+	return nil
+}
+
+func (p *PaymentAPI) UpdatePayment(ctx context.Context, req *paymentapi.UpdatePaymentRequest, res *paymentapi.UpdatePaymentResponse) error {
+	data, err := p.PaymentService.UpdatePayment(context.TODO(), &payment.UpdatePaymentRequest{
+		PaymentData: &payment.Payment{
+			TransactionId:     req.PaymentId,
+			PaymentMethod:     req.PaymentMethod,
+			TransactionStatus: req.PaymentStatus,
+		},
+	})
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	res.Code = "success"
+	res.Msg = "payment_id: " + data.PaymentId
 
 	return nil
 }

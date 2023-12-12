@@ -38,9 +38,8 @@ func main() {
 	}
 
 	// 启动服务
-	go func() {
-		if err := service.Run(); err != nil {
-			fmt.Println(err)
-		}
-	}()
+	if err := service.Run(); err != nil {
+		fmt.Println(err)
+	}
+
 }

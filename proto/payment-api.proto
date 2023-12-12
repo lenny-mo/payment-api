@@ -7,28 +7,18 @@ option go_package = "./paymentapi";
 service PaymentAPI {
 	rpc MakePayment(MakePaymentRequest) returns (MakePaymentResponse); 
 	rpc GetPayment(GetPaymentRequest) returns (GetPaymentResponse);
-}
-
-message Pair {
-	string key = 1;
-	repeated string values = 2;
+	rpc UpdatePayment(UpdatePaymentRequest) returns (UpdatePaymentResponse);
 }
 
 message MakePaymentRequest {
 	string method = 1;
-	string path = 2;
-	map<string, Pair> header = 3;
-	map<string, Pair> get = 4;
-	map<string, Pair> post = 5;
-	string body = 6;
-	string url = 7;	
+	int64 OrderId = 2; 
 }
 
 message MakePaymentResponse {
 	string code = 1;
 	string msg = 2;
-	map<string, Pair> header = 3;
-	string body = 4;
+	string PaymentId = 3; 
 }
 
 message GetPaymentRequest {
@@ -37,4 +27,16 @@ message GetPaymentRequest {
 
 message GetPaymentResponse {
 	string paymentInfo = 1; 
+}
+
+// 可以修改支付状态，支付方法
+message UpdatePaymentRequest {
+	string PaymentId = 1; 
+	string PaymentMethod = 2;
+	int32 PaymentStatus = 3;
+}
+
+message UpdatePaymentResponse {
+	string code = 1;
+	string msg = 2;
 }

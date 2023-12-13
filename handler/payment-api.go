@@ -30,15 +30,16 @@ func (p *PaymentAPI) MakePayment(ctx context.Context, req *paymentapi.MakePaymen
 	// 目前只是处理paypal订单
 	switch req.Method {
 	case "paypal":
-		payres, err := p.PaymentService.MakePayment(context.TODO(), &payreq)
+
+		payres, err := p.PaymentService.MakePayment(ctx, &payreq)
 		if err != nil {
 			fmt.Println(err)
 			res.Msg = err.Error()
 			return err
 		}
 
-		res.Msg = "success"
-		res.Msg += "paymentId:" + payres.PaymentID
+		res.Msg = "success " + "paymentId: " + payres.PaymentID
+		res.PaymentId = payres.PaymentID
 	}
 
 	return nil

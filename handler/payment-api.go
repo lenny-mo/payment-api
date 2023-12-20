@@ -46,7 +46,7 @@ func (p *PaymentAPI) MakePayment(ctx context.Context, req *paymentapi.MakePaymen
 }
 
 func (p *PaymentAPI) GetPayment(ctx context.Context, req *paymentapi.GetPaymentRequest, res *paymentapi.GetPaymentResponse) error {
-	data, err := p.PaymentService.GetPaymentStatus(context.TODO(), &payment.GetPaymentStatusRequest{
+	data, err := p.PaymentService.GetPaymentStatus(ctx, &payment.GetPaymentStatusRequest{
 		PaymentId: req.PaymentId,
 	})
 
@@ -62,7 +62,7 @@ func (p *PaymentAPI) GetPayment(ctx context.Context, req *paymentapi.GetPaymentR
 }
 
 func (p *PaymentAPI) UpdatePayment(ctx context.Context, req *paymentapi.UpdatePaymentRequest, res *paymentapi.UpdatePaymentResponse) error {
-	data, err := p.PaymentService.UpdatePayment(context.TODO(), &payment.UpdatePaymentRequest{
+	data, err := p.PaymentService.UpdatePayment(ctx, &payment.UpdatePaymentRequest{
 		PaymentData: &payment.Payment{
 			TransactionId:     req.PaymentId,
 			PaymentMethod:     req.PaymentMethod,

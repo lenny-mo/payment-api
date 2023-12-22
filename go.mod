@@ -7,6 +7,7 @@ go 1.13
 replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 
 require (
+	github.com/afex/hystrix-go v0.0.0-20180502004556-fa1af6a1f4f5
 	github.com/golang/protobuf v1.5.3
 	github.com/lenny-mo/emall-utils v0.0.0-20231218141407-3b3960e96cd9
 	github.com/lenny-mo/payment v0.0.0-20231210060813-ddf0ae2ea1bb

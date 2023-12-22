@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/lenny-mo/emall-utils/tracer"
+	"github.com/lenny-mo/payment-api/circuit"
 	"github.com/lenny-mo/payment-api/handler"
 	"github.com/lenny-mo/payment-api/proto/paymentapi"
 	"github.com/lenny-mo/payment/proto/payment"
@@ -38,8 +39,11 @@ func main() {
 		micro.Version("latest"),
 		micro.Address("127.0.0.1:8091"),
 		micro.Registry(consulRegistry),
+		// 上下游添加链路追踪
 		micro.WrapClient(opentracing2.NewClientWrapper(opentracing.GlobalTracer())),
 		micro.WrapHandler(opentracing2.NewHandlerWrapper(opentracing.GlobalTracer())),
+		// 添加请求微服务时候的熔断机制
+		micro.WrapClient(circuit.NewClientWrapper()),
 	)
 
 	service.Init()
